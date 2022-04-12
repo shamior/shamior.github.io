@@ -1,0 +1,104 @@
+:root{
+    font-size: 26px;
+    font-family: 'Roboto', sans-serif;
+    --bg-color: #564779;
+    --box-color: #C17F8B;
+    --page-color:  #DE978F;
+    --copy-trans-color: #9D6C82;
+    --copy-click-color: #2B2F6C;
+}
+
+
+body{
+    background-color: var(--bg-color);
+}
+
+div{
+    max-width: 32rem;
+}
+
+div > a > img{
+    width: 2rem;
+    height: 2rem;
+}
+
+h2{
+    display: flex;
+    justify-content: center;
+}
+
+.inside-box{
+    background-color: var(--box-color);
+    padding: 1rem;
+    margin: 1rem;
+    border-radius: 1rem;
+}
+
+.inside-box > h3{
+    display: flex;
+    justify-content: center;
+}
+
+
+#portfolio {
+    margin: auto;
+    padding: 2rem;
+    background-color: var(--page-color);
+    border-radius: 1rem;
+}
+
+.copy-icon{
+    width: 1.6rem;
+    border: .03rem black solid;
+    border-radius: .2rem;
+    transition: all .3s;
+    padding: .15rem;
+    margin-right: 10rem;
+    float: right;
+    margin-top: .5rem;
+}
+.copy-icon:hover{
+    cursor: pointer;
+    background-color: var(--copy-trans-color);
+}
+.copy-icon:active{
+    background-color: var(--copy-click-color);
+}
+
+.link{
+    display: flex;
+    margin-top: .5rem
+}
+.link > a{
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+
+#profile-photo {
+    height: 7rem;
+    width: 7rem;
+    border-radius: 50%;
+    margin: auto;
+}
+
+a{
+    text-decoration: none;
+    color: black;
+}
+
+
+h3{
+    margin: 0;
+}
+
+p{
+    margin: 0;
+}
+
+img{
+    height: inherit;
+    width: inherit;
+    border-radius: inherit;
+}

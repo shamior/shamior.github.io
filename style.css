@@ -25,6 +25,16 @@ div > a > img{
 h2{
     display: flex;
     justify-content: center;
+    margin-bottom: 3rem;
+}
+
+#graduando{
+    font-weight: bolder;
+    margin-bottom: .5rem;
+}
+
+.intro{
+    text-align: justify;
 }
 
 .inside-box{
@@ -49,13 +59,13 @@ h2{
 
 .copy-icon{
     width: 1.6rem;
-    border: .03rem black solid;
+    border: .12rem black solid;
     border-radius: .2rem;
     transition: all .3s;
     padding: .15rem;
-    margin-right: 10rem;
-    float: right;
     margin-top: .5rem;
+    opacity: 50%;
+    display: none;
 }
 .copy-icon:hover{
     cursor: pointer;
@@ -65,9 +75,21 @@ h2{
     background-color: var(--copy-click-color);
 }
 
+#email{
+    display: flex;
+    justify-content: space-between;
+    margin-right: 8rem;
+}
+
+
+.xp{
+    display: flex;
+    justify-content: space-between;
+}
+
 .link{
     display: flex;
-    margin-top: .5rem
+    margin-top: .7rem
 }
 .link > a{
     display: flex;

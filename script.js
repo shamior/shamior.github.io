@@ -3,7 +3,7 @@ let emailDiv = document.querySelector("#email")
 
 copyButton.addEventListener(
     "click",
-    () => navigator.clipboard.writeText("kastkuya@gmail.com"),
+    () => navigator.clipboard.writeText("katskuya@gmail.com"),
     false
 )
 

@@ -1,5 +1,5 @@
 :root{
-    font-size: 26px;
+    font-size: 24px;
     font-family: 'Roboto', sans-serif;
     --bg-color: #564779;
     --box-color: #C17F8B;
@@ -9,9 +9,49 @@
 }
 
 
+html{
+    scroll-padding-top: 3rem;
+}
+
 body{
     background-color: var(--bg-color);
+    margin: 0;
+    padding-top: 4rem;
+    scroll-behavior: smooth;
 }
+
+h1{
+    display: flex;
+    justify-content: center;
+    color: white;
+}
+
+#back-img {
+    height: 2.5rem;
+    margin-right: 1rem;
+}
+
+#back{
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding: .5rem;
+    border-radius: .4rem;
+    margin: 0;
+}
+
+#nothing{
+     display: flex;
+    align-items: center;
+    margin: auto;
+}
+
+#back:hover{
+    cursor: pointer;
+    background-color: white;
+    color: black;
+}
+
 
 div{
     max-width: 32rem;
@@ -27,6 +67,39 @@ h2{
     justify-content: center;
     margin-bottom: 3rem;
 }
+
+#menu {
+    background-color: var(--copy-click-color);
+    display: flex;
+    padding: 0;
+    margin: 0;
+    justify-content: center;
+    gap: 3rem;
+    height: 2.5rem;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    width: 100%;
+}
+
+#menu > li {
+    list-style: none;
+    padding: 0 0.8rem;
+    height: inherit;
+}
+
+#menu > li > a{
+    display: flex;
+    align-items: center;
+    color: white;
+    height: inherit;
+}
+
+#menu > li:hover{
+    background-color: var(--copy-trans-color);
+    cursor: pointer;
+}
+
 
 #graduando{
     font-weight: bolder;
@@ -98,6 +171,7 @@ h2{
 }
 
 
+
 #profile-photo {
     height: 7rem;
     width: 7rem;
@@ -123,4 +197,9 @@ img{
     height: inherit;
     width: inherit;
     border-radius: inherit;
+}
+
+@media only screen and (max-width:50rem) {
+/* TODO
+responsive menu */
 }

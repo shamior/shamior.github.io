@@ -41,9 +41,10 @@ h1{
 }
 
 #nothing{
-     display: flex;
+    display: flex;
     align-items: center;
     margin: auto;
+    border-radius: 1rem;
 }
 
 #back:hover{

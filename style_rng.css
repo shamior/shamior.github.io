@@ -1,0 +1,28 @@
+:root{
+    font-family: 'Roboto', sans-serif;
+}
+
+body{
+    max-width: 50rem;
+    margin: auto;
+}
+
+body{
+    background-color: #eee;
+}
+
+p{
+    text-align: justify;
+}
+
+code, pre{
+    font-size: 1rem;
+}
+
+.red{
+    color: darkred;
+}
+
+.bold{
+    font-weight: bold;
+}

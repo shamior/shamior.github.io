@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>RNG device VirtIO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style_rng.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/default.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+    <h1>Usando VIRTIO para gerar números aleatórios em RISCV.</h1>
+    <h2>Anexando o dispositivo de entropia (gerador de números aleatórios) na máquina</h3>
+    <p>Como parâmetro, quando executamos o QEMU temos que mencionar o dispositivo com a seguinte flag <code>-device virtio-rng-device</code>. Com isso, o dispositivo de números aleatórios estará ligada a nossa máquina virtual.</p>
+    <h2>Descobrindo o dispositivo.</h3>
+    <p>Usaremos MMIO para conversar com o dispositivo, mas primeiro precisamos descobrir onde esse dispositivo está na memória. Na device tree do QEMU temos uma parte para os dispositivos virtIO mapeados em memória. Podemos ter até 8 dispositivos virtIO em nossa máquina, começando no endereço 0x10001000 e indo até o endereço 0x10008000, cada um com um espaço de endereçamento de 0x1000 bytes. Na documentação do virtIO temos offsets para descobrir informações sobre estes dispositivos e também nos comunicarmos com eles. Nesta fala que o offset 0x00 é onde encontra-se a palavra mágica "virt" que em little endian é 0x74726976, encontrando essa palavra podemos assumir que nesse endereço há  um dispositivo conectado. No offset 0x08 temos o device id que é o ID do dispositivo, com ele descobriremos de qual dispositivo se trata, no nosso caso, queremos encontrar o dispositivo com número 0x4, que é o dispositivo de entropia. Então suponha-se que quando lermos o endereço 0x10007000 + 0x00 encontremos o magic value 0x74726976 e no endereço 0x10007000 + 0x08 encontramos o número 0x04, podemos assumir que este é nosso dispositivo de entropia que tem como base o endereço 0x10007000. Com essas informações podemos montar um simples loop que checa os endereços de dispositivos virtIO para tentar encontrar o nosso dispositivo de entropia.</p>
+    <pre>
+        <code class="language-c">
+#define VIRTIO_START        0x10001000
+#define VIRTIO_END          0x10008000
+#define VIRTIO_STRIDE       0x1000
+#define MAGIC_VALUE         0x74726976
+#define MAGIC_OFFSET        0x0
+#define DEVICE_ID_OFFSET    0x8
+
+void write_to_reg(uint64 base, uint32 reg, uint32 value){
+    *(uint32*)(base + reg) = value;
+}
+
+uint32 read_from_reg(uint64 base, uint32 reg){
+    uint32 val = *(uint32*)(base + reg);
+    return val;
+}
+
+void virtio_probe() {
+    uint64 addr;
+    uint32 magicvalue;
+    uint32 deviceid;
+    for(addr = VIRTIO_START; addr <= VIRTIO_END; addr += VIRTIO_STRIDE) {
+        magicvalue = read_from_reg(addr, MAGIC_OFFSET);
+        deviceid = read_from_reg(addr, DEVICE_ID_OFFSET);
+        
+        // Se o dispositivo está conectado o deslocamento 0x000 contém o número
+        // 0x74_72_69_76
+        if (magicvalue != MAGIC_VALUE) {
+            printf("Dispositivo virtio não encontrado \n");
+        }
+        else if (deviceid == 0) {
+            printf("\tDispositivo não conectado\n");
+        }
+        else {
+            switch(deviceid) {
+                case 0x04:
+                    printf(
+                        "Dispositivo entropia (Gerador de Número Aleatório) encontrado\n"
+                    );
+                    setup_rng(addr);
+                    break;       
+                default:
+                    printf("Dispositivo virtio não identificado foi encontrado\n");
+                    break;        
+            }
+        }
+    }
+}
+
+    </code>
+    </pre>
+    <p>Vemos 3 funções acima, a funçao <code>write_to_reg</code> escreve um valor <code>value</code> em um offset do dispositivo. Já a função <code>read_from_reg</code> lê o valor de um determinado offset. A função <code>virtio_probe</code> faz um loop pelos 8 endereços para encontrar nosso dispositivo de entropia, dentro dessa função, temos uma função que não vimos ainda, a <code>setup_rng</code> com ela, configuraremos o dispositivo de entropia.</p>
+    <h2>Configurando nosso dispositivo.</h3>
+    <p>Para configurar o dispositivo, primeiro vamos dar uma olhada no offset STATUS e depois como funciona as VIRT QUEUES</p>
+    <img src="/img/status_reg.png" alt="" width="800">
+    <p>
+    Na figura acima é apresentado os bits do registrador status <br>
+    O bit 0 (ACKNOWLEDGE) quando setado, indica para o dispositivo que 
+    nos o achamos e o reconhecemos como um dispositivo válido.<br>
+    O bit 1 (DRIVER) quando setado, indica para o dispositivo que nos
+    sabemos como controlar o dispositivo.<br>
+    O bit 2 (DRIVER_OK) quando setado, indica para o dispositivo que nos
+    já estamos prontos para controlar o dispositivo. <br>
+    O bit 3 (FEATURES_OK) quando setado, indica para o dispositivo que nos
+    já reconhecemos todas as features que entendemos e a negociação de features já foi completa.<br>
+    O bit 6 (DEVICE_NEEDS_RESET) quando setado, indica que o dispositivo experienciou algum erro no qual não consegue se recuperar. <br>
+    O bit 7 (FAILED) quando setado, indica que algo deu errado para nos (driver) e o dispositivo não funcionará mais.
+    </p>
+    <h2>Entendendo um pouco das VIRT QUEUES</h2>
+    <pre>
+        <code class="language-c">
+#define QNUM 0X40 //escolhi um número aleatorio para o tamanho de nossa fila
+
+typedef struct virtq {
+    VirtQDescriptor desc[QNUM];
+    VirtQAvailable av;
+    //padding para que VirtQUsed tenha um alinhamento de 4 bytes, então o alinhamos para a proxima pagina
+    uint8 padding0[ 
+        PAGE_SIZE*(((sizeof(VirtQDescriptor) * QNUM + sizeof(VirtQAvailable)) / PAGE_SIZE) +1)
+        - sizeof(VirtQDescriptor) * QNUM
+        - sizeof(VirtQAvailable)
+    ];
+    VirtQUsed used;
+} VirtQ;
+        </code>
+    </pre>
+    <p>As virtqueues são o meio por onde faremos nossas requisições (em nosso caso, pediremos números aleatórios). Elas são dividas em 3 partes: 
+        <ul>
+            <li>
+                Descriptors
+            </li>
+            <li>
+                Available Ring
+            </li>
+            <li>
+                Used Ring
+            </li>
+        </ul>
+    </p>
+    <h4>Descriptors</h4>
+    <pre>
+        <code>
+//flags
+#define VIRTQ_DESC_F_NEXT       1 
+#define VIRTQ_DESC_F_WRITE      2 
+
+typedef struct virtq_descriptor{
+    uint64 address;
+    uint32 length;
+    uint16 flags;
+    uint16 next;
+} VirtQDescriptor;            
+        </code>
+    </pre>
+    <p>Os descritores servem para descreverem a nossa requisição. <br><br>
+    <span class="bold red">address </span> é o endereço fisico do nosso buffer, em nosso caso, sera onde o dispositivo escreverá numeros aleatorios.<br>
+    <span class="bold red">length </span> é o tamanho do nosso buffer.<br>
+    <span class="bold red">flags </span> é o campo onde terá nossas flags, exemplo se nossa requisição tem mais de 1 descritor, usaremos a flag VIRTQ_DESC_F_NEXT. A flag VIRTQ_DESC_F_WRITE indica para o dispositivo que o buffer é write-only, caso não setemos essa flag, o buffer será read-only. <br>
+    <span class="bold red">next </span> indica o indice do proximo descritor se VIRTQ_DESC_F_NEXT está setado.
+    </p>
+    <h4>Available Ring</h4>
+    <pre>
+        <code class="language-c">
+typedef struct virtq_available {
+    uint16 flags;
+    uint16 index;
+    uint16 ring[QNUM];
+} VirtQAvailable;
+        </code>
+    </pre>
+    <p>O Available Ring é uma estrutura que é lida pelo dispositivo e escrita pelo driver, ela serve para indicar para o dispositivo onde encontrar o descritor da requisição.<br>
+    <span class="bold red">index</span> é o indice do ultimo ring escrito pelo driver, este indice é usado para indexar o ring e so pode ser incrementado
+    </p>
+
+    <p>Encontrado o endereço de nosso dispositivo, agora precisamos nos comunicar com ele para iniciá-lo. Na documentação fala que para iniciar qualquer dispositivo virtIO, temos que seguir uma série de passos:</p>
+    <ol>
+        <li>Resetar o dispositivo</li>
+        <p>Para resetar o dispositivo, temos que escrever o número 0 no offset chamado STATUS</p>
+        <li>Setar</li>
+    </ol> 
+</body>
+</html>

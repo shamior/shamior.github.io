@@ -87,6 +87,7 @@ void virtio_probe() {
     <h2>Entendendo um pouco das VIRT QUEUES</h2>
     <pre>
         <code class="language-c">
+#define PAGE_SIZE 4096 //tamanho da nossa pagina de memoria
 #define QNUM 0X40 //escolhi um número aleatorio para o tamanho de nossa fila
 
 typedef struct virtq {
@@ -147,14 +148,157 @@ typedef struct virtq_available {
         </code>
     </pre>
     <p>O Available Ring é uma estrutura que é lida pelo dispositivo e escrita pelo driver, ela serve para indicar para o dispositivo onde encontrar o descritor da requisição.<br>
-    <span class="bold red">index</span> é o indice do ultimo ring escrito pelo driver, este indice é usado para indexar o ring e so pode ser incrementado
+        <span class="bold red">index</span> é o indice indicando onde o driver colocará o próximo dado no ring começa em 0 e só pode ser incrementado, nunca decrementado. <br>
+        <span class="bold red">ring</span> o dispositivo acessa este ring para saber onde está o começo da lista de descritores de uma requisição <br>
+        Ex: Se fizermos uma requisição com descritores  <code>4->5->6</code>, <code>ring[index-1]</code> tera o numero 4.
+    <span></span>
     </p>
+    <h4>Used Ring</h4>
+    <pre>
+        <code class="language-c">
+typedef struct virtq_used_element {
+    uint32 id;
+    uint32 length;
+}VirtQUsedElement;
 
-    <p>Encontrado o endereço de nosso dispositivo, agora precisamos nos comunicar com ele para iniciá-lo. Na documentação fala que para iniciar qualquer dispositivo virtIO, temos que seguir uma série de passos:</p>
+
+typedef struct virtq_used {
+    uint16 flags;
+    uint16 index;
+    VirtQUsedElement ring[QNUM];
+    uint16 available_event;
+}VirtQUsed;
+        </code>
+    </pre>
+    <p>Já o used ring é escrito pelo dispositivo e lido pelo driver, é nele que o dispositivo retorna o informações do buffer escrito. <br>
+    <span class="bold red">index</span> é o indice indicando onde o driver colocará o próximo dado no ring começa em 0 e só pode ser incrementado, nunca decrementado. <br>
+    <span class="bold red">ring</span> o driver pode acessar este ring para obter informações da requisição como: <br><br>
+    <span class="bold red">id</span> é o id do começo da lista de descritores que descrever o buffer escrito. <br>
+    <span class="bold red">length</span> é o tamanho que foi escrito no buffer pelo dispositivo. 
+    </p>
+    <h4>Inicializando o dispositivo</h4>
+    <p>Entendido alguns conceitos e depois de ter encontrado o endereço de nosso dispositivo, agora precisamos nos comunicar com ele para iniciá-lo. Na documentação fala que para iniciar qualquer dispositivo virtIO, temos que seguir uma série de passos:</p>
     <ol>
-        <li>Resetar o dispositivo</li>
-        <p>Para resetar o dispositivo, temos que escrever o número 0 no offset chamado STATUS</p>
-        <li>Setar</li>
-    </ol> 
+        <li>Resetar o dispositivo (fazemos isso escrevendo 0 no registrador STATUS)</li>
+        <li>Setar o bit ACKNOWLEDGE do STATUS</li>
+        <li>Setar o bit DRIVER do STATUS</li>
+        <li>Ler as features oferecidas pelo dispositivo no offset HOST_FEATURES e escrever as features que queremos ou entendemos no offset GUEST_FEATURES</li>
+        <li>Fazer uma configuração especifica de cada dispositivo, como configurar as virtqueues, ler e/ou escrever no espaço de configuração do dispositivo</li>
+        <li>Por ultimo, setar o bit DRIVER_OK do STATUS</li>
+    </ol>
+    <pre>
+        <code>
+//status register bits
+#define STATUS_RESET                (0)
+#define STATUS_ACKNOWLEDGE          (1 << 0)
+#define STATUS_DRIVER               (1 << 1)
+#define STATUS_DRIVER_OK            (1 << 2)
+#define STATUS_FEATURES_OK          (1 << 3)
+#define STATUS_DEVICE_NEEDS_RESET   (1 << 6)
+#define STATUS_FAILED               (1 << 7)
+
+#define HOST_FEATURES =     0X010
+#define GUEST_FEATURES =    0X020
+#define STATUS =            0X070
+
+typedef struct rng_device{
+    uint64 address;
+    VirtQ *queue;
+    uint32 idx;
+}rng_device;
+
+rng_device RNG_DEVICE;
+
+
+//funcao que seta o bit de um determinado registrador
+void set_bit(uint64 base, uint32 reg, uint32 mask){
+    uint32 number = *(uint32*)(base + reg);
+    number |= mask;
+    *(uint32*)(base + reg) = number;
+}
+
+//funcao que configura o dispositivo de entropia e deixa ele rodando
+void setup_rng(uint64 addr){
+    //1. reset no dispositivo
+    write_to_reg(addr, STATUS, STATUS_RESET);
+    //2. set ack status bit
+    set_bit(addr, STATUS, STATUS_ACKNOWLEDGE); //ack
+    //3. set driver status bit
+    set_bit(addr, STATUS, STATUS_DRIVER);
+    //4. ler as features e escrever no dispositivo
+    uint32 device_feat = read_from_reg(addr, HOST_FEATURES);
+    write_to_reg(addr, GUEST_FEATURES, device_feat);
+    //5. setup virtq
+    uint32 num_pages = sizeof(VirtQ)/PAGE_SIZE;
+    VirtQ *Q = (VirtQ*) alloc(num_pages);
+    uint32 q_pfn = ((uint64)Q)/PAGE_SIZE; //physical page number -- endereço fisico da pagina da fila
+    write_to_reg(addr, QUEUE_SEL, 0); //seleciono a fila de numero 0, a unica do dispositivo
+    write_to_reg(addr, QUEUE_NUM, QNUM); //escrevo o tamanho de nossa fila
+    write_to_reg(addr, GUEST_PAGE_SIZE, PAGE_SIZE); //informo o tamanho da pagina para que o dispositivo consiga calcular o endereço fisico da fila
+    write_to_reg(addr, QUEUE_PFN,  q_pfn); //informo o endereço fisico da pagina da fila
+    //6. set DRIVER_OK status bit
+    set_bit(addr, STATUS, STATUS_DRIVER_OK);
+    //agora o dispositivo já esta rodando
+
+    //atribuo ele a nossa variavel global
+    RNG_DEVICE.address = addr;
+    RNG_DEVICE.idx = 0;
+    RNG_DEVICE.queue = Q;
+}
+        </code>
+    </pre>
+    <h2>Fazendo requisições</h2>
+    <p>Agora que o dispositivo já está configurado e inicializado, vamos escrever nossa função para gerar numeros aleatórios. <br>
+    Na documentação fala que so precisamos colocar o descritor de um ou mais buffers na fila que estes serão completamente preenchidos com bytes aleatórios.
+    </p>
+    <pre>
+        <code>
+#define QUEUE_NOTIFY    0x050
+
+//função que seta um descritor, para o nosso codigo ficar mais limpo
+void set_descriptor(VirtQDescriptor *desc, uint64 address, uint32 length, uint16 flags, uint16 next){
+    desc->address = address;
+    desc->length = length;
+    desc->flags = flags;
+    desc->next = next;
+}
+
+//função que retorna um numero aleatorio dentro de um range
+//start >= 0
+//end <= 2^32 - 1
+uint32 get_random_number(uint32 start, uint32 end){
+    uint32 random_number; //nosso numero aleatorio que vamos gerar
+    uint32 *buffer = (uint32*) alloc(1); //nosso buffer onde o dispositivo escreverá
+    VirtQDescriptor desc; //o descritor descrevendo nossa requisição
+    //com o endereco do buffer
+    //tamanho do buffer, que é 32 bytes (tamanho do uint32)
+    //coloco como flag VIRTQ_DESC_F_WRITE, pois o dispositivo escreverá em nosso buffer
+    //e como next, deixo em 0, pois não será utilizado
+    set_descriptor(&desc, (uint64)buffer, sizeof(uint32), VIRTQ_DESC_F_WRITE, 0);
+
+    //head é o indice do primeiro descritor da nossa requisição
+    uint32 head = RNG_DEVICE.idx;
+    //coloco o descritor na minha fila
+    RNG_DEVICE.queue->desc[RNG_DEVICE.idx] = desc;
+    //atualizo o idx, que é minha variavel de indexação dos descritores
+    RNG_DEVICE.idx = (RNG_DEVICE.idx +1) % QNUM;
+    //no available ring, digo qual é o começo dos descritores da requisição
+    RNG_DEVICE.queue->av.ring[RNG_DEVICE.queue->av.index % QNUM] = head;
+    //lembrando que a variavel av.index sempre é incrementada, então não podemos fazer av.index = (av.index +1)%QNUM
+    RNG_DEVICE.queue->av.index = RNG_DEVICE.queue->av.index +1;
+
+    //com nosso descritor e buffer prontos, aviso o dispostivo escrevendo no offset QUEUE_NOTIFY, e falando que a fila 0 fez uma requisição
+    write_to_reg(RNG_DEVICE.address, QUEUE_NOTIFY, 0);
+    //espero o dispositivo atender a requisição
+    //quando ele atender, incrementará o used.index e assim av.index sera igual a used.index
+    while (RNG_DEVICE.queue->av.index != RNG_DEVICE.queue->used.index);
+
+    //recupero os bytes aleatorios
+    random_number = *buffer;
+    //desaloca buffer --> essa função ainda nao foi implementada
+    return (random_number % (end - start)) + start;
+}
+        </code>
+    </pre>
 </body>
 </html>

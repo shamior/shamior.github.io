@@ -4,7 +4,7 @@
 let gerarLinkButton = document.querySelector("#gerar-zap-msg")
 let gerarLinkButtonNoMsg = document.querySelector("#gerar-zap-nomsg")
 
-gerarLinkButton.onclick = async () => {
+gerarLinkButton.onclick = () => {
     let inputValue = ''
 
     navigator.clipboard.readText().then((data) => {
@@ -15,7 +15,7 @@ gerarLinkButton.onclick = async () => {
 }
 
 
-gerarLinkButtonNoMsg.onclick = async () => {
+gerarLinkButtonNoMsg.onclick = () => {
     let inputValue = ''
     try {
         navigator.clipboard.readText().then((data) => {

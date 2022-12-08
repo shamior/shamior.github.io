@@ -17,11 +17,14 @@ gerarLinkButton.onclick = async () => {
 
 gerarLinkButtonNoMsg.onclick = async () => {
     let inputValue = ''
-
-    navigator.clipboard.readText().then((data) => {
-        inputValue = data.replaceAll(" ", '')
-        window.open('whatsapp://send/?phone=55' +inputValue + '&type=phone_number&app_absent=0')
-    })
+    try {
+        navigator.clipboard.readText().then((data) => {
+            inputValue = data.replaceAll(" ", '')
+            window.open('whatsapp://send/?phone=55' +inputValue + '&type=phone_number&app_absent=0')
+        })
+    }catch(e){
+        window.alert(e);
+    }
 
 }
 

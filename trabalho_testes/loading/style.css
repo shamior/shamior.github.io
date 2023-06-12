@@ -1,0 +1,53 @@
+*{
+    font-size: 32px;
+}
+
+
+button{
+    margin-bottom: 1rem;
+}
+
+input[type="checkbox"]{
+    width: 1rem;
+    height: 1rem;
+    margin-left: 2.5rem;
+}
+
+form > button {
+    padding: .7rem;
+}
+
+dialog{
+    position: absolute;
+    background-color: greenyellow;
+    top: 50%;
+    transform: translateY(-50%);
+    max-width: 70%;
+    border-radius: 1rem;
+}
+
+#prog-container{
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #aaa;
+    height: 3rem;
+    width: 20rem;
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
+#prog-container::before{
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: var(--progress-count, 0);
+    background: greenyellow;
+}
+
+#prog-text{
+    z-index: 1;
+}

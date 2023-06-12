@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Testes Calculadora</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <div id="inputs">
+            <input id="inp1" type="text" placeholder="numero 1">
+            <input id="inp2" type="text" placeholder="numero 2">
+        </div>
+        <div id="buttons">
+            <button onclick="realizaOperacao('+')" id="soma">soma</button>
+            <button onclick="realizaOperacao('-')" id="sub">subtracao</button>
+            <button onclick="realizaOperacao('/')" id="div">divisao</button>
+            <button onclick="realizaOperacao('*')" id="mult">multiplicacao</button>
+        </div>
+        <div>
+            <p id="result"></p>
+        </div>
+        <script src="script.js"></script>
+    </body>
+</html>

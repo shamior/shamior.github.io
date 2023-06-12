@@ -1,0 +1,21 @@
+*{
+    font-size: 32px;
+}
+
+
+#inputs{
+    margin: 1rem;
+    display: flex;
+    gap: 2rem;
+}
+
+input{
+    height: 2rem;
+    width: 10rem;
+    text-align: center;
+}
+
+button{
+    width: 6rem;
+    height: 3rem;
+}

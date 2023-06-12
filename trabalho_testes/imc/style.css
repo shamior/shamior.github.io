@@ -1,0 +1,17 @@
+*{
+    font-size: 32px;
+}
+
+p{
+    margin: 0;
+}
+
+#container{
+    background-color: var(--container-color, grey);
+    width: 10rem;
+    height: 10rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}

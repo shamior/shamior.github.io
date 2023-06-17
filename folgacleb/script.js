@@ -3,6 +3,15 @@ const HOURS_IN_A_DAY = 24
 const h1_folga = document.querySelector('#folga')
 const img = document.querySelector('img')
 
+const qtd_fotos = {
+    semfolga: 3,
+    folga: 5
+}
+
+function random(start, end){
+    return Math.round(Math.random()*(end-start) + start)
+}
+
 function taDeFolga(date){
     const HOURS_PASSED_SINCE_1_1_1970 = (date.getTime() / MILISECONDS_IN_AN_HOUR) - 3 //UTC -3
     const DAYS_PASSED = HOURS_PASSED_SINCE_1_1_1970 / HOURS_IN_A_DAY
@@ -13,10 +22,10 @@ function taDeFolga(date){
 
 if (taDeFolga(new Date())){
     h1_folga.textContent = "Cleb ta de folga hoje"
-    img.src = "folga.jpg"
+    img.src = `./folga/${random(1, qtd_fotos.folga)}.png`
 }else{
     h1_folga.textContent = "Cleb não ta de folga hoje"
-    img.src = "semfolga.png"
+    img.src = `./semfolga/${random(1, qtd_fotos.semfolga)}.png`
 }
 
 
@@ -79,10 +88,10 @@ function buildCalendar(firstDay, lastDay){
         for (let j = first_weekday_of_month; j < 7; j++){
             thisDay = new Date(firstDay.getFullYear(), firstDay.getMonth(), day)
             html += `<div class="calendar-day ${taDeFolga(thisDay) ? "folga": "sem-folga"} ${ehHoje(thisDay)? "hoje" : ""}">${day}</div>`
+            day++
             if (day > last_day_of_month){
                 break
             }
-            day++
         }
         first_weekday_of_month = 0
         html += `</div>`

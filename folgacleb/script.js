@@ -77,12 +77,12 @@ function buildCalendar(firstDay, lastDay){
             html += '<div></div>'
         }
         for (let j = first_weekday_of_month; j < 7; j++){
-            day++
             thisDay = new Date(firstDay.getFullYear(), firstDay.getMonth(), day)
-            html += `<div class="calendar-day ${taDeFolga(thisDay) ? "folga": "sem-folga"} ${ehHoje(thisDay)? "hoje" : ""}">${day-1}</div>`
+            html += `<div class="calendar-day ${taDeFolga(thisDay) ? "folga": "sem-folga"} ${ehHoje(thisDay)? "hoje" : ""}">${day}</div>`
             if (day > last_day_of_month){
                 break
             }
+            day++
         }
         first_weekday_of_month = 0
         html += `</div>`

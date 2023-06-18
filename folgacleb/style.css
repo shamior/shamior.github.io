@@ -51,12 +51,12 @@ body{
     background: chartreuse;
 }
 
-.hoje{
-    background: coral;
-}
 
 .sem-folga{
     background: rgb(243, 234, 230);
+}
+.hoje{
+    background: coral;
 }
 
 h1{

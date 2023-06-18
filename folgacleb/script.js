@@ -14,8 +14,7 @@ function random(start, end){
 
 function taDeFolga(date){
     const HOURS_PASSED_SINCE_1_1_1970 = (date.getTime() / MILISECONDS_IN_AN_HOUR) - 3 //UTC -3
-    const DAYS_PASSED = HOURS_PASSED_SINCE_1_1_1970 / HOURS_IN_A_DAY
-    console.log(DAYS_PASSED)
+    const DAYS_PASSED = parseInt(HOURS_PASSED_SINCE_1_1_1970 / HOURS_IN_A_DAY)
     return DAYS_PASSED % 2
 }
 

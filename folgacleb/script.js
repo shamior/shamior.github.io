@@ -9,7 +9,7 @@ const qtd_fotos = {
 }
 
 function random(start, end){
-    return Math.round(Math.random()*(end-start) + start)
+    return Math.floor(Math.random()*(end-start+1) + start)
 }
 
 function taDeFolga(date){

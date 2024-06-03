@@ -5,7 +5,7 @@ const img = document.querySelector('img')
 
 const qtd_fotos = {
     semfolga: 3,
-    folga: 5
+    folga: 4
 }
 
 function random(start, end){

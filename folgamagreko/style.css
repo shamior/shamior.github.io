@@ -72,9 +72,6 @@ img {
 }
 
 
-.hoje{
-    background: rgb(243, 234, 230);
-}
 .sem-folga{
     background: #ff006e;
 }
@@ -82,6 +79,11 @@ img {
 .dormindo{
     background: #00b4d8
 }
+
+.hoje{
+    background: rgb(243, 234, 230);
+}
+
 
 h1{
     text-align: center;

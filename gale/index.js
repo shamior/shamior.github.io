@@ -16,7 +16,7 @@ document.querySelector('button').addEventListener(
         let insideDiv = divStart + `<h4>Ciclo: ${ciclo}</h4><div class="entries">`
         let html = ""
         let total = valor
-        while (total <= entrada) {
+        while(total <= entrada) {
             if (cont % 8 === 0 && cont !== 0) {
                 ciclo++
 
@@ -28,8 +28,14 @@ document.querySelector('button').addEventListener(
             valor *= 1.077
             cont++
             total += valor
-        }
+        }  
+        if (cont % 8 === 0 && cont !== 0) {
+            ciclo++
 
+            html += insideDiv
+            html += "</div>\n</div>"
+            insideDiv = divStart + `<h4>Ciclo: ${ciclo}</h4><div class="entries">`
+        }
         insideDiv += `<p><span class="ciclo-cont">${getGale(cont)}:</span> ${total.toFixed(2)}</p>\n`
         html += insideDiv
         html += "</div>\n</div>"

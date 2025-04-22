@@ -1,5 +1,7 @@
 p {
     margin: 6px;
+    display: grid;
+    grid-template-columns: 0.7fr 1fr;
 }
 
 
@@ -50,7 +52,7 @@ h4{
   }
 
 .ciclo{
-    min-width: 90px;
+    min-width: 120px;
     margin: 1rem;
     border: solid 2px black;
     border-radius: 10px 10px 0 0;

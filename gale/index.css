@@ -1,14 +1,24 @@
+p {
+    margin: 6px;
+}
+
+
+.ciclo-cont{
+    color:brown;
+    padding-right: 10px;
+}
+
 body{
     padding-top: 2rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    font-family: "Poppins", sans-serif;
 }
 
 input {
     font-size: 20px;
-    padding: 4px;
 }
 
 .inputs{
@@ -18,8 +28,19 @@ input {
     gap: 10px
 }
 
+.entries{
+    padding: 0 10px;
+}
+
 button {
     font-size: 20px;
+}
+
+h4{
+    background-color: aquamarine;
+    margin: 0;
+    text-align: center;
+    padding: 10px;
 }
 
 #container{
@@ -29,8 +50,9 @@ button {
   }
 
 .ciclo{
-    min-width: 100px;
+    min-width: 90px;
     margin: 1rem;
-    padding: 1rem;
     border: solid 2px black;
+    border-radius: 10px 10px 0 0;
+    overflow: hidden;
 }

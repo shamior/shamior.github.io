@@ -17,19 +17,15 @@ function taDeFolga(date){
     const HOURS_PASSED_SINCE_1_1_1970 = (date.getTime() / MILISECONDS_IN_AN_HOUR) - 3 //UTC -3
     const DAYS_PASSED = parseInt(HOURS_PASSED_SINCE_1_1_1970 / HOURS_IN_A_DAY)
     return {
-        trabalho: ((DAYS_PASSED + 2) % 4) == 0,
+        trabalho: (DAYS_PASSED % 2) == 0,
         dormindo: ((DAYS_PASSED + 1) % 4) == 0
     }
-
 }
 
 const tadefolgahj = taDeFolga(new Date())
 if (tadefolgahj.trabalho){
     h1_folga.textContent = "Magreko Dreams não ta de folga hoje"
     img.src = `./semfolga/${random(1, qtd_fotos.folga)}.jpeg`
-}else if (tadefolgahj.dormindo){
-    h1_folga.textContent = "Magreko Dreams está a mimir hoje"
-    img.src = `./dormindo/${random(1, qtd_fotos.semfolga)}.jpeg`
 }else{
     h1_folga.textContent = "Magreko Dreams ta de folga hoje"
     img.src = `./folga/${random(1, qtd_fotos.semfolga)}.jpeg`
@@ -59,10 +55,10 @@ const [firstDay, lastDay] = getFirstAndLastDayOfMonth(today)
 const [nextFirstDay, nextLastDay] = getFirstAndLastDayOfMonth(
     new Date(
         today.getFullYear(),
-        today.getMonth(),
-        lastDay.getDate() + 1
+        today.getMonth() + 1,
     )
 )
+
 
 function ehHoje(date){
     let hoje = new Date()
@@ -98,7 +94,6 @@ function buildCalendar(firstDay, lastDay){
             folguinha = taDeFolga(thisDay)
             html += `<div class="calendar-day ${
                 folguinha.trabalho ? "sem-folga":
-                folguinha.dormindo ? "dormindo" :
                 "folga"
             } ${ehHoje(thisDay)? "hoje" : ""}">${day}</div>`
             day++

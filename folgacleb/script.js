@@ -8,6 +8,11 @@ const qtd_fotos = {
   folga: 8,
 };
 
+let diaAlternado = parseInt(localStorage.getItem("diaAlternado"));
+if (isNaN(diaAlternado)) {
+  diaAlternado = 0;
+}
+
 function random(start, end) {
   return Math.floor(Math.random() * (end - start + 1) + start);
 }
@@ -16,7 +21,7 @@ function taDeFolga(date) {
   const HOURS_PASSED_SINCE_1_1_1970 =
     date.getTime() / MILISECONDS_IN_AN_HOUR - 3; //UTC -3
   const DAYS_PASSED = parseInt(HOURS_PASSED_SINCE_1_1_1970 / HOURS_IN_A_DAY);
-  return DAYS_PASSED % 2;
+  return (DAYS_PASSED + diaAlternado) % 2;
 }
 
 if (taDeFolga(new Date())) {
@@ -106,3 +111,29 @@ function buildCalendar(firstDay, lastDay) {
 
 calendarios.innerHTML = buildCalendar(firstDay, lastDay);
 calendarios.innerHTML += buildCalendar(nextFirstDay, nextLastDay);
+
+function alternateDay() {
+  const dias = [1, 0];
+  diaAlternado = dias[diaAlternado]; //troca de 0 pra 1 e vice-versa
+  localStorage.setItem("diaAlternado", String(diaAlternado));
+  calendarios.innerHTML = buildCalendar(firstDay, lastDay);
+  calendarios.innerHTML += buildCalendar(nextFirstDay, nextLastDay);
+  if (taDeFolga(new Date())) {
+    h1_folga.textContent = "Cleb ta de folga hoje";
+    img.src = `./folga/${random(1, qtd_fotos.folga)}.png`;
+  } else {
+    h1_folga.textContent = "Cleb não ta de folga hoje";
+    img.src = `./semfolga/${random(1, qtd_fotos.semfolga)}.png`;
+  }
+}
+
+function alternateImage() {
+  if (taDeFolga(new Date())) {
+    img.src = `./folga/${random(1, qtd_fotos.folga)}.png`;
+  } else {
+    img.src = `./semfolga/${random(1, qtd_fotos.semfolga)}.png`;
+  }
+}
+
+document.querySelector("#alternar").addEventListener("click", alternateDay);
+document.querySelector("img").addEventListener("click", alternateImage);

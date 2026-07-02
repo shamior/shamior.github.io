@@ -1,73 +1,147 @@
-body{
-    display: flex;
-    gap: 30px;
+body {
+    color: white;
+    background-color: #252525;
+    gap: 10px;
+    font-family: "Dosis", sans-serif;
+    margin: 0 auto;
 }
 
-.calendar{
-    background: rgb(121, 151, 205);
-    margin-bottom: 50px;
+img {
+    border-radius: 5px;
+}
+
+#folga {
+    text-align: center;
+    margin-top: 16px;
+    font-size: 48px;
+}
+
+main {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 40px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.calendar {
+    color: white;
+    background: #444444;
+    margin-bottom: 20px;
     display: grid;
-    gap: 10px;
-    width: 400px;
+    gap: 8px;
+    width: 300px;
     height: fit-content;
-    padding: 1rem;
+    padding: 16px;
+    padding-top: 8px;
     border-radius: 1rem;
 }
 
-.calendar-row{
+.calendar-row {
     display: grid;
-    gap: 10px;
-    height: 50px;
+    gap: 8px;
+    height: 36px;
     grid-template-columns: repeat(7, 1fr);
 }
 
-.calendar-day{
+.calendar-day {
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 5px;
 }
 
-.weekday{
+.weekday {
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.month{
+.month {
     margin: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2rem;
+    font-size: 32px;
 }
 
-.weekrow{
-    height: 1.5rem;
-    font-size: 1.2rem;
+.weekrow {
+    height: 24px;
 }
 
-.folga{
-    background: chartreuse;
+.folga {
+    background: mediumaquamarine;
+    color: black;
 }
 
-
-.sem-folga{
-    background: rgb(243, 234, 230);
-}
-.hoje{
-    background: coral;
+.sem-folga {
+    background: lavender;
+    color: black;
 }
 
-h1{
-    text-align: center;
+.hoje {
+    font-weight: 700;
 }
 
-.leg{
+.hoje.sem-folga {
+    outline: 2px solid lavender;
+    background-color: #353535;
+    color: lavender;
+}
+
+.hoje.folga {
+    outline: 2px solid mediumaquamarine;
+    background-color: #353535;
+    color: mediumaquamarine;
+}
+
+.leg {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 10rem;
-    height: 6rem;
-    font-size: 2rem;
+    width: 96px;
+    height: 60px;
+    font-size: 20px;
+}
+
+.leg.folga {
+    border-radius: 10px 10px 0px 0px;
+}
+
+.leg.sem-folga {
+    border-radius: 0px 0px 10px 10px;
+}
+
+#legendas {
+    width: fit-content;
+}
+
+@media (width < 640px) {
+    main {
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+    #folga {
+        font-size: 40px;
+    }
+    img {
+        width: 332px;
+    }
+    #legendas > div {
+        display: flex;
+    }
+    #legendas {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .leg.folga {
+        border-radius: 10px 0px 0px 10px;
+    }
+
+    .leg.sem-folga {
+        border-radius: 0px 10px 10px 0px;
+    }
 }

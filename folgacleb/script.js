@@ -17,6 +17,8 @@ function random(start, end) {
   return Math.floor(Math.random() * (end - start + 1) + start);
 }
 
+let photoNumber = 1;
+
 function taDeFolga(date) {
   const HOURS_PASSED_SINCE_1_1_1970 =
     date.getTime() / MILISECONDS_IN_AN_HOUR - 3; //UTC -3
@@ -26,10 +28,12 @@ function taDeFolga(date) {
 
 if (taDeFolga(new Date())) {
   h1_folga.textContent = "Cleb ta de folga hoje";
-  img.src = `./folga/${random(1, qtd_fotos.folga)}.png`;
+  photoNumber = random(1, qtd_fotos.folga);
+  img.src = `./folga/${photoNumber}.png`;
 } else {
   h1_folga.textContent = "Cleb não ta de folga hoje";
-  img.src = `./semfolga/${random(1, qtd_fotos.semfolga)}.png`;
+  photoNumber = random(1, qtd_fotos.semfolga);
+  img.src = `./semfolga/${photoNumber}.png`;
 }
 
 const weekdays = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab"];
@@ -129,9 +133,19 @@ function alternateDay() {
 
 function alternateImage() {
   if (taDeFolga(new Date())) {
-    img.src = `./folga/${random(1, qtd_fotos.folga)}.png`;
+    let newPhotoNumber = random(1, qtd_fotos.folga);
+    while (newPhotoNumber == photoNumber) {
+      newPhotoNumber = random(1, qtd_fotos.folga);
+    }
+    photoNumber = newPhotoNumber;
+    img.src = `./folga/${photoNumber}.png`;
   } else {
-    img.src = `./semfolga/${random(1, qtd_fotos.semfolga)}.png`;
+    let newPhotoNumber = random(1, qtd_fotos.semfolga);
+    while (newPhotoNumber == photoNumber) {
+      newPhotoNumber = random(1, qtd_fotos.semfolga);
+    }
+    photoNumber = newPhotoNumber;
+    img.src = `./semfolga/${photoNumber}.png`;
   }
 }
 

@@ -4,8 +4,8 @@ const h1_folga = document.querySelector("#folga");
 const img = document.querySelector("img");
 
 const qtd_fotos = {
-  semfolga: 3,
-  folga: 4,
+  semfolga: 8,
+  folga: 8,
 };
 
 function random(start, end) {

@@ -81,10 +81,16 @@ function BaseCalendar({ firstDay, lastDay, alternate }: BaseCalendarProps) {
 }
 
 export function FolgaCleb() {
+  const today = new Date();
   const [alternate, setAlternate] = useState(diaAlternado === 1);
-  const folga = taDeFolga(new Date(), alternate);
+  const folga = taDeFolga(today, alternate);
   const [photoIndex, setPhotoIndex] = useState(
     random(1, folga ? qtd_fotos.folga : qtd_fotos.semfolga),
+  );
+
+  const [firstDay, lastDay] = getFirstAndLastDayOfMonth(today);
+  const [nextFirstDay, nextLastDay] = getFirstAndLastDayOfMonth(
+    new Date(today.getFullYear(), today.getMonth(), lastDay.getDate() + 1),
   );
 
   function generateNewPhotoIndex() {
@@ -128,13 +134,13 @@ export function FolgaCleb() {
           </div>
           <div id="calendarios">
             <BaseCalendar
-              firstDay={getFirstAndLastDayOfMonth(new Date())[0]}
-              lastDay={getFirstAndLastDayOfMonth(new Date())[1]}
+              firstDay={firstDay}
+              lastDay={lastDay}
               alternate={alternate}
             />
             <BaseCalendar
-              firstDay={getFirstAndLastDayOfMonth(new Date(2026, 10, 9))[0]}
-              lastDay={getFirstAndLastDayOfMonth(new Date(2026, 10, 9))[1]}
+              firstDay={nextFirstDay}
+              lastDay={nextLastDay}
               alternate={alternate}
             />
           </div>

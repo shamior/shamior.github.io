@@ -1,0 +1,52 @@
+function OldPage() {
+  return (
+    <html>
+      <head>
+        <meta
+          name="google-site-verification"
+          content="7GooYKoFb6jziEt5QJ7cJeW-pnEhPWyvW-jYWlJJHe8"
+        />
+        <meta lang="pt-br" />
+        <title>Kev - GITHUB</title>
+        <link rel="stylesheet" href="style.css" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Roboto&display=swap"
+          rel="stylesheet"
+        />
+        <script src="https://unpkg.com/@phosphor-icons/web"></script>
+      </head>
+      <body>
+        <div>
+          <h1>little abandoned here innit?</h1>
+          <p>anyway, u can head to these things i did over here</p>
+          <ul>
+            <li>
+              <a href="/folgacleb/">Que dia o cleb ta de folga?</a>
+            </li>
+            <li>
+              <a href="/pokemon/">Paginazinha para procurar pokemon</a>
+            </li>
+            <li>
+              <a href="https://moonfallsmayhem.surge.sh/">
+                <i className="ph-fill ph-star"></i> Jogo Projeto Integrador 2023
+                - IFGoiano
+              </a>
+            </li>
+            <li>
+              <a href="https://araguaia.surge.sh/">
+                <i className="ph-fill ph-star"></i> Projeto Bolsa - Araguaia
+                vivo 2030
+              </a>
+            </li>
+          </ul>
+        </div>
+      </body>
+    </html>
+  );
+}
+
+function App() {
+  return <OldPage />;
+}
+
+export default App;

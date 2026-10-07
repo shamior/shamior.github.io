@@ -142,6 +142,10 @@ export function FolgaCleb() {
             <div
               id="alternar"
               onClick={() => {
+                localStorage.setItem(
+                  "diaAlternado",
+                  String(Number(!alternate)),
+                );
                 setAlternate(!alternate);
                 generateNewPhotoIndex();
               }}
